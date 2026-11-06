@@ -1,0 +1,91 @@
+/* 中文补丁：一个 look，让舞台里的中文读起来像原生产品。
+   The Chinese look. Two ways in: `lang="zh-CN"` on any ancestor (the
+   `:lang()` rule catches it, and Chrome then picks Simplified glyph
+   forms for 骨 直 与 instead of Japanese ones), or `className="look-zh"`
+   on the Stage. Use both: the attribute for the glyphs, the class for
+   the overrides. Loads after stage.css; every rule here sits on top of
+   a built-in theme and changes type, density and the few Latin habits
+   (tracking, uppercase, synthesized italics) that hurt CJK. */
+
+.ss-stage:lang(zh),
+.look-zh .ss-stage {
+  /* The OS's own Latin face first, then its own CJK face: what a native
+     app shows on that machine. Noto / Source Han for Linux and web fonts;
+     never a Serif or SimSun fallback for UI text. */
+  --ss-font: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+    "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei",
+    "Noto Sans CJK SC", "Noto Sans SC", "Source Han Sans SC", "WenQuanYi Micro Hei",
+    system-ui, sans-serif;
+  /* Latin mono stays mono; CJK in a terminal or code falls to a CJK mono
+     when one is installed (Sarasa, Noto Sans Mono CJK), else the UI sans.
+     Consolas before them would pull CJK into SimSun. */
+  --ss-mono: "SF Mono", "SFMono-Regular", ui-monospace, "Sarasa Mono SC", "Sarasa Term SC",
+    "Noto Sans Mono CJK SC", "Source Han Mono SC", Menlo, Consolas,
+    "PingFang SC", "Microsoft YaHei UI", monospace;
+
+  /* Hanzi at the same point size read smaller and denser than Latin, and
+     need taller lines. One step more room on the two density tokens. */
+  --ss-control: 36px;
+  --ss-row: 28px;
+
+  /* Chinese never tracks, never upper-cases, and has no italic: the
+     browser would slant the glyphs. Pinned at the root; the rules below
+     reach the kit parts that set their own. */
+  letter-spacing: 0;
+  font-style: normal;
+  text-transform: none;
+  /* CJK/Latin spacing and punctuation trimming where the browser has them
+     (Chrome 123+ for text-spacing-trim); harmless elsewhere. */
+  text-autospace: normal;
+  text-spacing-trim: space-first;
+  line-break: strict;
+  overflow-wrap: anywhere;
+}
+
+/* Kit parts that track their Latin labels. Tracking a hanzi label opens
+   gaps between characters that read as spaces. */
+.ss-stage:lang(zh) .ss-button,
+.ss-stage:lang(zh) .ss-avatar__initial,
+.ss-stage:lang(zh) .ss-bubble,
+.ss-stage:lang(zh) .ss-phone *,
+.ss-stage:lang(zh) .ss-kb *,
+.look-zh .ss-stage .ss-button,
+.look-zh .ss-stage .ss-avatar__initial,
+.look-zh .ss-stage .ss-bubble,
+.look-zh .ss-stage .ss-phone *,
+.look-zh .ss-stage .ss-kb * {
+  letter-spacing: 0;
+}
+
+/* A password field's dots stay tracked: they are dots, not characters. */
+.ss-stage:lang(zh) .ss-field__value[data-password],
+.look-zh .ss-stage .ss-field__value[data-password] {
+  letter-spacing: 1.5px;
+}
+
+/* Every text element in a Chinese stage: a little more leading than the
+   kit's Latin defaults. Rows and controls keep their own line boxes. */
+.ss-stage:lang(zh) .ss-text,
+.look-zh .ss-stage .ss-text {
+  line-height: 1.5;
+}
+
+/* Italic has no CJK face. A quote, a caption or a placeholder the kit
+   would set in italic shows upright and one step lighter in tone instead. */
+.ss-stage:lang(zh) em,
+.ss-stage:lang(zh) i,
+.ss-stage:lang(zh) [style*="italic"],
+.look-zh .ss-stage em,
+.look-zh .ss-stage i {
+  font-style: normal;
+  color: var(--ss-text);
+}
+
+/* Numbers and units keep their Latin figures, tabular where they align. */
+.ss-stage:lang(zh) .ss-count,
+.ss-stage:lang(zh) [data-numeric],
+.look-zh .ss-stage .ss-count,
+.look-zh .ss-stage [data-numeric] {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
